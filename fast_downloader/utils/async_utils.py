@@ -1,10 +1,10 @@
 import asyncio
 import aiofiles
 import requests
-from settings import logger
+from fast_downloader.settings import logger
 from aiohttp import request as areq
 
-from utils.constants import BUFFER_START, BUFFER_SIZE
+from fast_downloader.utils import BUFFER_START, BUFFER_SIZE
 
 
 async def async_allocate_out_file(output, size):

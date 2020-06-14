@@ -5,10 +5,10 @@ import requests
 from datetime import datetime
 from multiprocessing import Pool, Queue, Process
 
-from downloaders.constants import HTTP_OK, FILE_START
-from utils.async_utils import download_multi_chunks
-from utils.utils import allocate_out_file, download_range, get_file_size
-from settings import logger, CPU_COUNT
+from fast_downloader.downloaders.constants import HTTP_OK, FILE_START
+from fast_downloader.utils.async_utils import download_multi_chunks
+from fast_downloader.utils.utils import allocate_out_file, download_range, get_file_size
+from fast_downloader.settings import logger, CPU_COUNT
 
 
 class AbstractDownloader(ABC):

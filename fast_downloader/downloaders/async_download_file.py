@@ -1,10 +1,10 @@
 from datetime import datetime
-from settings import logger, CPU_COUNT
+from fast_downloader.settings import logger, CPU_COUNT
 
 from abc import ABC, abstractmethod
 from math import ceil
 
-from utils.async_utils import download_multi_chunks, async_get_file_size, async_allocate_out_file
+from fast_downloader.utils.async_utils import download_multi_chunks, async_get_file_size, async_allocate_out_file
 
 
 class AbstractAsyncDownloader(ABC):
