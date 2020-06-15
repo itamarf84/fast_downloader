@@ -16,10 +16,11 @@ async def async_allocate_out_file(output, size) -> None:
 
 
 async def async_get_file_size(url: str) -> int:
-    response = requests.head(url)
-    response.raise_for_status()
-    size = int(response.headers['Content-Length'])
-    return size
+    async with areq(method='GET', url=url, chunked=True, raise_for_status=True) as headers_resp:
+        content_length = headers_resp.headers.get('Content-Length')
+        if not content_length:
+            content_length = len(headers_resp.content)
+    return int(content_length)
 
 
 async def async_write_chunk(chunk_start: int, chunk_end: int, input: bytes, out: str) -> int:

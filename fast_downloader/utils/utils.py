@@ -12,9 +12,11 @@ def allocate_out_file(output: str, size: int) -> None:
 
 
 def get_file_size(url: str) -> int:
-    headers_resp = requests.get(url, stream=True)
+    headers_resp = requests.head(url, stream=True)
     headers_resp.raise_for_status()
-    content_length = headers_resp.headers['Content-length']
+    content_length = headers_resp.headers.get('Content-length')
+    if not content_length:
+        content_length = len(headers_resp.content)
     return int(content_length)
 
 
