@@ -1,26 +1,28 @@
 import asyncio
-import aiofiles
+from typing import Optional, Tuple, List
+
 import requests
-from fast_downloader.settings import logger
+import aiofiles
 from aiohttp import request as areq
 
-from fast_downloader.utils import BUFFER_START, BUFFER_SIZE
+from fast_downloader.settings import logger
+from fast_downloader.utils.constants import BUFFER_START, BUFFER_SIZE
 
 
-async def async_allocate_out_file(output, size):
+async def async_allocate_out_file(output, size) -> None:
     async with aiofiles.open(output, mode="wb") as f:
         f.seek(size - 1)
         f.write(b"\0")
 
 
-async def async_get_file_size(url):
+async def async_get_file_size(url: str) -> int:
     response = requests.head(url)
     response.raise_for_status()
     size = int(response.headers['Content-Length'])
     return size
 
 
-async def async_write_chunk(chunk_start, chunk_end, input, out):
+async def async_write_chunk(chunk_start: int, chunk_end: int, input: bytes, out: str) -> int:
     input_len = len(input)
     bytes_left_to_write_on_chunk = chunk_end - chunk_start + 1
     bytes_to_write = bytes_left_to_write_on_chunk if bytes_left_to_write_on_chunk < input_len else input_len
@@ -32,7 +34,7 @@ async def async_write_chunk(chunk_start, chunk_end, input, out):
     return bytes_to_write
 
 
-async def async_download_range(url, start, end, output, buffer_size=BUFFER_SIZE):
+async def async_download_range(url: str, start: int, end: int, output: str, buffer_size: Optional[int] = BUFFER_SIZE) -> Tuple[int, int]:
     headers = {'Range': f'bytes={start}-{end}'}
     place = start
     async with areq(method='GET', url=url, headers=headers, chunked=True, raise_for_status=True, read_until_eof=False) as response:
@@ -45,7 +47,7 @@ async def async_download_range(url, start, end, output, buffer_size=BUFFER_SIZE)
     return start, end
 
 
-async def download_multi_chunks(chunk_size, input_len, input, output, start=0):
+async def download_multi_chunks(chunk_size: int, input_len: int , input: str, output: str, start: Optional[int] = 0) -> List[Tuple[int, int]]:
     buffer_end = start + input_len
     tasks = [
         async_download_range(

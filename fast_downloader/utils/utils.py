@@ -1,22 +1,24 @@
+from typing import Optional, Tuple
 import requests
+
 from fast_downloader.settings import logger
-from fast_downloader.utils import BUFFER_START, BUFFER_SIZE
+from fast_downloader.utils.constants import BUFFER_START, BUFFER_SIZE
 
 
-def allocate_out_file(output, size):
+def allocate_out_file(output: str, size: int) -> None:
     with open(output, "wb") as f:
         f.seek(size - 1)
         f.write(b"\0")
 
 
-def get_file_size(url):
+def get_file_size(url: str) -> int:
     headers_resp = requests.get(url, stream=True)
     headers_resp.raise_for_status()
     content_length = headers_resp.headers['Content-length']
     return int(content_length)
 
 
-def write_chunk(chunk_start, chunk_end, input, out):
+def write_chunk(chunk_start: int, chunk_end: int, input: bytearray, out: str) -> int:
     input_len = len(input)
     bytes_left_to_write_on_chunk = chunk_end - chunk_start + 1
     bytes_to_write = bytes_left_to_write_on_chunk if bytes_left_to_write_on_chunk < input_len else input_len
@@ -27,7 +29,7 @@ def write_chunk(chunk_start, chunk_end, input, out):
     return bytes_to_write
 
 
-def download_range(url, start, end, output, buffer_size=BUFFER_SIZE):
+def download_range(url: str, start: int, end: int, output: str, buffer_size: Optional[int] = BUFFER_SIZE) -> Tuple[int, int]:
     headers = {'Range': f'bytes={start}-{end}'}
     response = requests.get(url, headers=headers, stream=True)
     response.raise_for_status()
@@ -38,3 +40,4 @@ def download_range(url, start, end, output, buffer_size=BUFFER_SIZE):
         if place > end:
             break
     logger.debug(f'finished {start} till {end}')
+    return start, end
